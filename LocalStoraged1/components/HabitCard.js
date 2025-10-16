@@ -4,7 +4,8 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Alert
+  Alert,
+  Platform
 } from 'react-native';
 import { Storage } from '../utils/storage';
 
@@ -20,7 +21,6 @@ export default function HabitCard({ habit, onToggle, onEdit, onDelete, onAddPhot
     const completions = await Storage.getCompletionsForHabit(habit.id);
     const completedCount = completions.filter(c => c.completed).length;
     
-    // Calcular progresso da semana atual
     const today = new Date();
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
@@ -31,8 +31,6 @@ export default function HabitCard({ habit, onToggle, onEdit, onDelete, onAddPhot
     });
     
     setProgress(weekCompletions.length);
-    
-    // Calcular sequência atual
     calculateStreak(completions);
   };
 
@@ -42,7 +40,6 @@ export default function HabitCard({ habit, onToggle, onEdit, onDelete, onAddPhot
       .filter(c => c.completed)
       .sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    // Lógica simplificada para calcular streak
     const today = new Date();
     for (let i = 0; i < sortedCompletions.length; i++) {
       const completionDate = new Date(sortedCompletions[i].date);
@@ -62,11 +59,19 @@ export default function HabitCard({ habit, onToggle, onEdit, onDelete, onAddPhot
   const handleAddPhoto = () => {
     Alert.alert(
       'Registro com Foto',
-      'Deseja tirar uma foto ou escolher da galeria?',
+      'Deseja tirar uma foto para registrar este hábito?',
       [
-        { text: 'Tirar Foto', onPress: () => onAddPhoto('camera') },
-        { text: 'Galeria', onPress: () => onAddPhoto('gallery') },
-        { text: 'Cancelar', style: 'cancel' }
+        { 
+          text: 'Tirar Foto', 
+          onPress: () => {
+            // ✅ CORREÇÃO: Chama a função diretamente sem parâmetros
+            onAddPhoto();
+          }
+        },
+        { 
+          text: 'Cancelar', 
+          style: 'cancel' 
+        }
       ]
     );
   };
@@ -120,9 +125,20 @@ const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 16,
     marginVertical: 8,
-    // CORRIGIDO: shadow* para boxShadow no React Native Web
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    elevation: 3, // Para Android
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      }
+    }),
   },
   cardHeader: {
     flexDirection: 'row',

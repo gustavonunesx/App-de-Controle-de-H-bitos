@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,14 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
-} from 'react-native';
-import { Storage } from '../utils/storage';
-import HabitCard from '../components/HabitCard';
-import { globalStyles } from '../styles/globalStyles';
+} from "react-native";
+import { Storage } from "../utils/storage";
+import HabitCard from "../components/HabitCard";
+import { globalStyles } from "../styles/globalStyles";
 
 export default function HomeScreen({ navigation }) {
   const [habits, setHabits] = useState([]);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     loadHabits();
@@ -24,17 +24,22 @@ export default function HomeScreen({ navigation }) {
     setHabits(savedHabits);
   };
 
-  const toggleHabitCompletion = async (habitId, date = new Date().toISOString().split('T')[0]) => {
+  const toggleHabitCompletion = async (
+    habitId,
+    date = new Date().toISOString().split("T")[0]
+  ) => {
     const completions = await Storage.getCompletions();
-    const todayCompletions = completions.find(c => c.date === date);
-    const existingCompletion = todayCompletions?.habits.find(h => h.habitId === habitId);
+    const todayCompletions = completions.find((c) => c.date === date);
+    const existingCompletion = todayCompletions?.habits.find(
+      (h) => h.habitId === habitId
+    );
 
     const completion = {
       habitId,
       date,
       completed: !existingCompletion?.completed,
       completedAt: new Date().toISOString(),
-      photo: existingCompletion?.photo
+      photo: existingCompletion?.photo,
     };
 
     await Storage.saveCompletion(completion);
@@ -43,32 +48,33 @@ export default function HomeScreen({ navigation }) {
 
   const deleteHabit = (habitId) => {
     Alert.alert(
-      'Excluir Hábito',
-      'Tem certeza que deseja excluir este hábito?',
+      "Excluir Hábito",
+      "Tem certeza que deseja excluir este hábito?",
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: "Cancelar", style: "cancel" },
         {
-          text: 'Excluir',
-          style: 'destructive',
+          text: "Excluir",
+          style: "destructive",
           onPress: async () => {
             await Storage.deleteHabit(habitId);
             loadHabits();
-          }
-        }
+          },
+        },
       ]
     );
   };
 
-  const filteredHabits = habits.filter(habit => {
-    if (filter === 'active') return !habit.completed;
-    if (filter === 'completed') return habit.completed;
+  const filteredHabits = habits.filter((habit) => {
+    if (filter === "active") return !habit.completed;
+    if (filter === "completed") return habit.completed;
     return true;
   });
 
   const getTodayProgress = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const completions = habits.flatMap(habit => 
-      habit.completions?.filter(c => c.date === today && c.completed) || []
+    const today = new Date().toISOString().split("T")[0];
+    const completions = habits.flatMap(
+      (habit) =>
+        habit.completions?.filter((c) => c.date === today && c.completed) || []
     );
     return completions.length;
   };
@@ -84,26 +90,47 @@ export default function HomeScreen({ navigation }) {
 
       <View style={styles.filterContainer}>
         <TouchableOpacity
-          style={[styles.filterButton, filter === 'all' && styles.activeFilter]}
-          onPress={() => setFilter('all')}
+          style={[styles.filterButton, filter === "all" && styles.activeFilter]}
+          onPress={() => setFilter("all")}
         >
-          <Text style={[styles.filterText, filter === 'all' && styles.activeFilterText]}>
+          <Text
+            style={[
+              styles.filterText,
+              filter === "all" && styles.activeFilterText,
+            ]}
+          >
             Todos
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.filterButton, filter === 'active' && styles.activeFilter]}
-          onPress={() => setFilter('active')}
+          style={[
+            styles.filterButton,
+            filter === "active" && styles.activeFilter,
+          ]}
+          onPress={() => setFilter("active")}
         >
-          <Text style={[styles.filterText, filter === 'active' && styles.activeFilterText]}>
+          <Text
+            style={[
+              styles.filterText,
+              filter === "active" && styles.activeFilterText,
+            ]}
+          >
             Ativos
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.filterButton, filter === 'completed' && styles.activeFilter]}
-          onPress={() => setFilter('completed')}
+          style={[
+            styles.filterButton,
+            filter === "completed" && styles.activeFilter,
+          ]}
+          onPress={() => setFilter("completed")}
         >
-          <Text style={[styles.filterText, filter === 'completed' && styles.activeFilterText]}>
+          <Text
+            style={[
+              styles.filterText,
+              filter === "completed" && styles.activeFilterText,
+            ]}
+          >
             Concluídos
           </Text>
         </TouchableOpacity>
@@ -116,9 +143,11 @@ export default function HomeScreen({ navigation }) {
           <HabitCard
             habit={item}
             onToggle={() => toggleHabitCompletion(item.id)}
-            onEdit={() => navigation.navigate('EditHabit', { habit: item })}
+            onEdit={() => navigation.navigate("EditHabit", { habit: item })}
             onDelete={() => deleteHabit(item.id)}
-            onAddPhoto={() => Alert.alert('Foto', 'Funcionalidade de foto em desenvolvimento')}
+            onAddPhoto={() =>
+              navigation.navigate("TakePhoto", { habitId: item.id })
+            }
           />
         )}
         ListEmptyComponent={
@@ -132,7 +161,7 @@ export default function HomeScreen({ navigation }) {
 
       <TouchableOpacity
         style={globalStyles.fab}
-        onPress={() => navigation.navigate('AddHabit')}
+        onPress={() => navigation.navigate("AddHabit")}
       >
         <Text style={globalStyles.fabText}>+</Text>
       </TouchableOpacity>
@@ -143,47 +172,47 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   header: {
     padding: 20,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
     marginTop: 5,
   },
   filterContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   filterButton: {
     flex: 1,
     padding: 10,
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 20,
     marginHorizontal: 5,
   },
   activeFilter: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
   },
   filterText: {
-    color: '#666',
-    fontWeight: '500',
+    color: "#666",
+    fontWeight: "500",
   },
   activeFilterText: {
-    color: '#fff',
+    color: "#fff",
   },
   emptyContainer: {
     padding: 40,
-    alignItems: 'center',
+    alignItems: "center",
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
-    textAlign: 'center',
+    color: "#999",
+    textAlign: "center",
   },
 });
